@@ -12,6 +12,13 @@ from mcp_hello_cimd.server import create_server
 server = create_server()
 app = server.sse_app()
 
+from starlette.responses import JSONResponse
+
+async def health_check(request):
+    return JSONResponse({"status": "ok"})
+
+app.add_route("/health", health_check)
+
 
 def main() -> int:
     """Run the MCP server over stdio or SSE via uvicorn."""
@@ -66,4 +73,4 @@ def main() -> int:
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    sys.exit(main())

@@ -348,3 +348,14 @@ def test_fetch_exceeds_redirect_limit(monkeypatch):
 
     with pytest.raises(CIMDFetchError, match="Too many redirects"):
         p._fetch("https://client.example.com/meta.json")
+
+
+def test_health_check_endpoint():
+    from starlette.testclient import TestClient
+    from mcp_hello_cimd.cli import app
+
+    client = TestClient(app)
+    response = client.get("/health")
+    assert response.status_code == 200
+    assert response.json() == {"status": "ok"}
+
