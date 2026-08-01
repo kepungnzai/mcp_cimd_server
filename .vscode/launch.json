@@ -1,0 +1,16 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug test_say_hello",
+      "type": "python",
+      "request": "launch",
+      "module": "pytest",
+      "args": [
+        "-k",
+        "test_say_hello"
+      ],
+      "console": "integratedTerminal"
+    }
+  ]
+}

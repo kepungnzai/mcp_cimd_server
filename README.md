@@ -131,12 +131,14 @@ tests/
 pip install -e ".[dev]"
 pytest
 ```
-
 ## Resources
 
 - [CIMD for Servers](https://client.dev/servers)
 - [CIMD IETF Internet-Draft](https://datatracker.ietf.org/doc/draft-ietf-oauth-client-id-metadata-document/)
 - [Model Context Protocol](https://modelcontextprotocol.io)
 
+running test 
+pytest -k test_say_hello
 
-
+test client 
+python test_remote_client.py --url http://localhost:8000/sse
