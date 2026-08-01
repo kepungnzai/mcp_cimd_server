@@ -1,17 +1,28 @@
 #!/usr/bin/env python
-"""MCP Client script for testing the mcp-hello-cimd server remotely over SSE."""
+"""MCP Client script for testing the mcp-hello-cimd server over Streamable HTTP.
+
+Run the server first:
+
+    uvicorn mcp_hello_cimd.main:app --port 8001
+
+Then run this client:
+
+    python streamable_http_client.py
+"""
 
 import argparse
 import asyncio
 import sys
+
 from mcp import ClientSession
-from mcp.client.sse import sse_client
+from mcp.client.streamable_http import streamablehttp_client
 
 
-async def run_client(sse_url: str):
-    print(f"Connecting to remote MCP server at {sse_url}...")
+async def run_client(url: str) -> None:
+    print(f"Connecting to MCP server at {url}...")
     try:
-        async with sse_client(sse_url) as (read_stream, write_stream):
+        async with streamablehttp_client(url) as (read_stream, write_stream, get_session_id):
+            print(f"Session ID: {get_session_id()}")
             async with ClientSession(read_stream, write_stream) as session:
                 # Initialize the session
                 await session.initialize()
@@ -26,24 +37,20 @@ async def run_client(sse_url: str):
 
                 # 2. Call say_hello tool
                 print("=== Testing say_hello ===")
-                name = "Remote Tester"
+                name = "HTTP Client Tester"
                 result = await session.call_tool("say_hello", arguments={"name": name})
                 print(f"Arguments: {{'name': '{name}'}}")
                 for item in result.content:
-                    if hasattr(item, "text"):
-                        print(f"Response: {item.text}")
-                    else:
-                        print(f"Response: {item}")
+                    text = getattr(item, "text", None)
+                    print(f"Response: {text if text is not None else item}")
                 print()
 
                 # 3. Call cimd_cache_info tool
                 print("=== Testing cimd_cache_info ===")
                 result = await session.call_tool("cimd_cache_info", arguments={})
                 for item in result.content:
-                    if hasattr(item, "text"):
-                        print(f"Response: {item.text}")
-                    else:
-                        print(f"Response: {item}")
+                    text = getattr(item, "text", None)
+                    print(f"Response: {text if text is not None else item}")
                 print()
     except Exception as e:
         print(f"Failed to connect or communicate with the server: {e}", file=sys.stderr)
@@ -51,11 +58,14 @@ async def run_client(sse_url: str):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Run the MCP SSE Remote Client.")
+    parser = argparse.ArgumentParser(
+        description="Run the MCP Streamable HTTP test client."
+    )
     parser.add_argument(
         "--url",
-        default="http://localhost:8000/sse",
-        help="The SSE endpoint URL of the remote MCP server (default: http://localhost:8000/sse)",
+        default="http://localhost:8001/mcp",
+        help="The Streamable HTTP endpoint URL of the MCP server "
+        "(default: http://localhost:8001/mcp)",
     )
     args = parser.parse_args()
 
@@ -63,5 +73,5 @@ if __name__ == "__main__":
         asyncio.run(run_client(args.url))
     except KeyboardInterrupt:
         print("\nClient terminated by user.")
-    except Exception as e:
+    except Exception:
         sys.exit(1)

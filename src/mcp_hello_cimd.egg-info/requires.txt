@@ -1,4 +1,9 @@
-mcp>=1.28.0
+fastapi>=0.115.0
+uvicorn>=0.30.0
+mcp[cli]>=1.2.0
+cryptography==41.0.7
+requests==2.31.0
+pyjwt>=2.13.0
 
 [dev]
 pytest>=7.0

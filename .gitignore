@@ -1,0 +1,4 @@
+src/mcp_hello_cimd/__pycache__
+src/mcp_hello_cimd.egg-info
+src/__pycache__
+*/__pycache__/*

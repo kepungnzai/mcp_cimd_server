@@ -5,7 +5,12 @@ from __future__ import annotations
 import logging
 from typing import Any
 
+# this is really tricky - 
 from mcp.server.fastmcp import FastMCP
+from mcp.server.transport_security import TransportSecuritySettings
+#from fastmcp import FastMCP
+# from fastmcp.server.auth.providers.jwt import JWTVerifier
+# from fastmcp.server.auth import require_scopes
 
 from mcp_hello_cimd.cimd import (
     CIMDFetchError,
@@ -13,11 +18,17 @@ from mcp_hello_cimd.cimd import (
     CIMDValidationError,
 )
 
+# Define your external token issuer/JWKS endpoint
+# auth_provider = JWTVerifier(
+#     jwks_uri="https://your-auth-system.com/.well-known/jwks.json",
+#     issuer="https://your-auth-system.com",
+#     audience="your-mcp-server",
+# )
+
 logger = logging.getLogger(__name__)
 
 SERVER_NAME = "mcp-hello-cimd"
 SERVER_VERSION = "0.1.0"
-
 
 def create_server() -> FastMCP:
     """Create and configure the MCP server.
@@ -26,10 +37,13 @@ def create_server() -> FastMCP:
     It also implements the *server* side of CIMD: it consumes client metadata
     documents (client_id URLs), exactly as an authorization server would.
     """
-    mcp = FastMCP(SERVER_NAME)
+
+    mcp = FastMCP(SERVER_NAME, stateless_http=True,
+              transport_security=TransportSecuritySettings(enable_dns_rebinding_protection=False))
     cimd = CIMDProcessor()
 
     @mcp.tool()
+    #@mcp.tool(auth=require_scopes("admin"))
     def say_hello(name: str = "world") -> str:
         """Say hello to someone.
 

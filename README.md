@@ -49,7 +49,8 @@ The server speaks MCP over stdio:
 Or directly:
 
 ```bash
-uvicorn mcp_hello_cimd.cli:app --port 8000
+uvicorn mcp_hello_cimd.main:app --port 8001
+
 ```
 
 ### Add to an MCP client (e.g. Claude Desktop / Cline)
@@ -115,7 +116,7 @@ Per the CIMD server spec, failures produce clear OAuth-style errors:
 ```
 src/mcp_hello_cimd/
 ├── __init__.py
-├── cli.py                # CLI entry point (stdio transport)
+├── main.py                # CLI entry point (stdio transport)
 ├── server.py             # MCP server: say_hello + CIMD tools
 └── cimd/
     ├── __init__.py
@@ -141,4 +142,13 @@ running test
 pytest -k test_say_hello
 
 test client 
-python test_remote_client.py --url http://localhost:8000/sse
+--------------------------------
+start server 
+```bash
+uvicorn mcp_hello_cimd.main:app --port 8001
+```
+
+And then run the client 
+```bash
+python streamable_http_client.py
+```
